@@ -27,7 +27,7 @@ include $(RT28xx_DIR)/os/linux/config.mk
 RTMP_SRC_DIR = $(RT28xx_DIR)/RT$(MODULE)
 
 #PLATFORM: Target platform
-PLATFORM = PC
+#PLATFORM = PC
 #PLATFORM = 5VT
 #PLATFORM = IKANOS_V160
 #PLATFORM = IKANOS_V180
@@ -46,7 +46,7 @@ PLATFORM = PC
 #PLATFORM = CMPC
 #PLATFORM = RALINK_2880
 #PLATFORM = RALINK_3052
-#PLATFORM = SMDK
+PLATFORM = SMDK
 #PLATFORM = RMI
 #PLATFORM = RMI_64
 #PLATFORM = KODAK_DC
@@ -273,8 +273,11 @@ CROSS_COMPILE =
 endif
 
 ifeq ($(PLATFORM),SMDK)
-LINUX_SRC = /home/bhushan/itcenter/may28/linux-2.6-samsung
-CROSS_COMPILE = /usr/local/arm/4.2.2-eabi/usr/bin/arm-linux-
+#LINUX_SRC = /home/bhushan/itcenter/may28/linux-2.6-samsung
+#CROSS_COMPILE = /usr/local/arm/4.2.2-eabi/usr/bin/arm-linux-
+LINUX_SRC = /work/sdk/Hi3518_SDK_V1.0.8.1/osdrv/kernel/linux-3.0.y
+CROSS_COMPILE = /opt/hisi-linux-nptl/arm-hisiv100-linux/target/bin/arm-hisiv100nptl-linux-
+
 endif
 
 ifeq ($(PLATFORM),RALINK_3352)
