@@ -197,7 +197,7 @@ RTMP_DECLARE_DRV_OPS_FUNCTION(usb);
  *	OS semaphore related data structure and definitions
  ******************************************************************************/
 
-#ifndef OS_ABL_FUNC_SUPPORT
+
 
 #define NDIS_SPIN_LOCK							OS_NDIS_SPIN_LOCK
 #define NdisAllocateSpinLock(__pReserved, __pLock)	OS_NdisAllocateSpinLock(__pLock)
@@ -226,72 +226,7 @@ RTMP_DECLARE_DRV_OPS_FUNCTION(usb);
 #define RTMP_OS_ATMOIC_DESTROY(__pAtomic)
 #define RTMP_THREAD_PID_KILL(__PID)				KILL_THREAD_PID(__PID, SIGTERM, 1)
 
-#else
 
-#define NDIS_SPIN_LOCK							OS_RSTRUC
-#define RTMP_OS_SEM								OS_RSTRUC
-#define RTMP_OS_ATOMIC							OS_RSTRUC
-
-#define RTMP_SEM_EVENT_INIT_LOCKED 				RtmpOsSemaInitLocked
-#define RTMP_SEM_EVENT_INIT						RtmpOsSemaInit
-#define RTMP_SEM_EVENT_DESTORY					RtmpOsSemaDestory
-#define RTMP_SEM_EVENT_WAIT(_pSema, _status)	((_status) = RtmpOsSemaWaitInterruptible((_pSema)))
-#define RTMP_SEM_EVENT_UP						RtmpOsSemaWakeUp
-
-#define RTUSBMlmeUp								RtmpOsMlmeUp
-
-#define RTMP_OS_ATMOIC_INIT						RtmpOsAtomicInit
-#define RTMP_OS_ATMOIC_DESTROY					RtmpOsAtomicDestroy
-#define RTMP_THREAD_PID_KILL					RtmpThreadPidKill
-
-/* */
-/*  spin_lock enhanced for Nested spin lock */
-/* */
-#define NdisAllocateSpinLock(__pAd, __pLock)		RtmpOsAllocateLock(__pLock, &(__pAd)->RscLockMemList)
-#define NdisFreeSpinLock							RtmpOsFreeSpinLock
-
-#define RTMP_SEM_LOCK(__lock)					\
-{												\
-	RtmpOsSpinLockBh(__lock);					\
-}
-
-#define RTMP_SEM_UNLOCK(__lock)					\
-{												\
-	RtmpOsSpinUnLockBh(__lock);					\
-}
-
-/* sample, use semaphore lock to replace IRQ lock, 2007/11/15 */
-#ifdef MULTI_CORE_SUPPORT
-
-#define RTMP_IRQ_LOCK(__lock, __irqflags)			\
-{													\
-	__irqflags = 0;									\
-	spin_lock_irqsave((spinlock_t *)(__lock), __irqflags);			\
-}
-
-#define RTMP_IRQ_UNLOCK(__lock, __irqflag)			\
-{													\
-	spin_unlock_irqrestore((spinlock_t *)(__lock), __irqflag);			\
-}
-#else
-#define RTMP_IRQ_LOCK(__lock, __irqflags)		\
-{												\
-	__irqflags = 0;								\
-	RtmpOsSpinLockBh(__lock);					\
-}
-
-#define RTMP_IRQ_UNLOCK(__lock, __irqflag)		\
-{												\
-	RtmpOsSpinUnLockBh(__lock);					\
-}
-#endif // MULTI_CORE_SUPPORT //
-#define RTMP_INT_LOCK(__Lock, __Flag)	RtmpOsIntLock(__Lock, &__Flag)
-#define RTMP_INT_UNLOCK					RtmpOsIntUnLock
-
-#define NdisAcquireSpinLock				RTMP_SEM_LOCK
-#define NdisReleaseSpinLock				RTMP_SEM_UNLOCK
-
-#endif /* OS_ABL_FUNC_SUPPORT */
 
 
 /*****************************************************************************

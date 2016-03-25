@@ -71,7 +71,7 @@ VOID ral_wlan_chip_onoff(
 	WLAN_FUN_CTRL_STRUC WlanFunCtrl = {.word=0};
 	UINT32 MacReg = 0;
 	int RET;
-
+adf
 
 #ifdef RTMP_MAC_USB
 	RTMP_SEM_EVENT_WAIT(&(pAd->WlanEnLock), RET);

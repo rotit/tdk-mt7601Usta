@@ -1658,9 +1658,7 @@ INT RtmpOSNetDevDestory(VOID *pReserved, PNET_DEV pNetDev)
 
 void RtmpOSNetDevDetach(PNET_DEV pNetDev)
 {
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	struct net_device_ops *pNetDevOps = (struct net_device_ops *)pNetDev->netdev_ops;
-#endif
 	int ret;
 
 	 ret = rtnl_trylock();
@@ -1670,9 +1668,7 @@ void RtmpOSNetDevDetach(PNET_DEV pNetDev)
 	if ( ret )
 		rtnl_unlock();
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	vfree(pNetDevOps);
-#endif
 }
 
 

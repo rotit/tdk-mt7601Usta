@@ -1209,7 +1209,7 @@ typedef struct usb_device_id USB_DEVICE_ID;
 #ifdef INF_AMAZON_SE
 #define BULKAGGRE_SIZE				30
 #else
-#define BULKAGGRE_SIZE				60 /* 100 */
+#define BULKAGGRE_SIZE				40/* 100 */
 #endif /* INF_AMAZON_SE */
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)

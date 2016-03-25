@@ -1,0 +1,25 @@
+//undef
+RT_CFG80211_SUPPORT
+NF_PPA_SUPPORT
+EXT_BUILD_CHANNEL_LIST
+PCIE_PS_SUPPORT
+RT_BIG_ENDIAN
+
+
+
+
+
+
+
+
+in rtmp_os.h
+
+#ifdef RTMP_MODULE_OS
+/* for util/netif */
+#include "os/rt_linux.h"
+#else
+/* for core */
+#include "os/rt_drv.h"
+
+remove :
+rt_drv.h
