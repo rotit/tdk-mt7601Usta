@@ -204,9 +204,7 @@ static void rtusb_disconnect(struct usb_interface *intf)
 
 
 	pAd = usb_get_intfdata(intf);
-#ifdef IFUP_IN_PROBE	
-	VIRTUAL_IF_DOWN(pAd);
-#endif /* IFUP_IN_PROBE */	
+	
 	usb_set_intfdata(intf, NULL);	
 
 	rt2870_disconnect(dev, pAd);
@@ -293,16 +291,8 @@ static void rt2870_disconnect(struct usb_device *dev, VOID *pAd)
 
 	/* FIXME: Shall we need following delay and flush the schedule?? */
 	udelay(1);
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)	/* kernel 2.4 series */
-#else
 	flush_scheduled_work();
-#endif /* LINUX_VERSION_CODE */
 	udelay(1);
-
-#ifdef RT_CFG80211_SUPPORT
-dd
-	RTMP_DRIVER_80211_UNREGISTER(pAd, net_dev);
-#endif /* RT_CFG80211_SUPPORT */
 
 	/* free the root net_device */
 //	RtmpOSNetDevFree(net_dev);
@@ -313,14 +303,9 @@ dd
 	RtmpOSNetDevFree(net_dev);
 
 	/* release a use of the usb device structure */
-#if LINUX_VERSION_CODE < KERNEL_VERSION(2,5,0)	/* kernel 2.4 series */
-	while(MOD_IN_USE > 0)
-	{
-		MOD_DEC_USE_COUNT;
-	}
-#else
+
 	usb_put_dev(dev);
-#endif /* LINUX_VERSION_CODE */
+	
 	udelay(1);
 
 	DBGPRINT(RT_DEBUG_ERROR, (" RTUSB disconnect successfully\n"));
@@ -339,12 +324,6 @@ static int rt2870_probe(
 	PVOID					handle;
 	RTMP_OS_NETDEV_OP_HOOK	netDevHook;
 	ULONG					OpMode;
-#ifdef CONFIG_PM
-#ifdef USB_SUPPORT_SELECTIVE_SUSPEND
-/*	INT 		pm_usage_cnt; */
-	INT		 res =1 ; 
-#endif /* USB_SUPPORT_SELECTIVE_SUSPEND */
-#endif /* CONFIG_PM */	
 
 	DBGPRINT(RT_DEBUG_TRACE, ("===>rt2870_probe()!\n"));
 	
@@ -414,15 +393,6 @@ static int rt2870_probe(
 /*#ifdef KTHREAD_SUPPORT */
 
 	*ppAd = pAd;
-
-
-#ifdef PRE_ASSIGN_MAC_ADDR
-	UCHAR PermanentAddress[MAC_ADDR_LEN];
-	RTMP_DRIVER_MAC_ADDR_GET(pAd, &PermanentAddress[0]);
-	DBGPRINT(RT_DEBUG_TRACE, ("@%s MAC address: %02x:%02x:%02x:%02x:%02x:%02x\n", __FUNCTION__, PermanentAddress[0], PermanentAddress[1],PermanentAddress[2],PermanentAddress[3],PermanentAddress[4],PermanentAddress[5]));
-	/* Set up the Mac address */
-	RtmpOSNetDevAddrSet(OpMode, net_dev, &PermanentAddress[0], NULL);
-#endif /* PRE_ASSIGN_MAC_ADDR */
 
 
 	DBGPRINT(RT_DEBUG_TRACE, ("<===rt2870_probe()!\n"));

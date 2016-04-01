@@ -142,8 +142,7 @@ RTMP_DECLARE_DRV_OPS_FUNCTION(usb);
 /*****************************************************************************
  * Timer related definitions and data structures.
  ******************************************************************************/
-#ifndef OS_ABL_FUNC_SUPPORT
-
+ 
 /* rt_linux.h */
 #define NDIS_MINIPORT_TIMER			OS_NDIS_MINIPORT_TIMER
 #define RTMP_OS_TIMER				OS_TIMER
@@ -155,21 +154,7 @@ RTMP_DECLARE_DRV_OPS_FUNCTION(usb);
 #define RTMP_OS_FREE_SEM(__pAd)
 #define RTMP_OS_FREE_ATOMIC(__pAd)
 
-#else
-
-/* rt_linux_cmm.h */
-#define NDIS_MINIPORT_TIMER			OS_RSTRUC
-#define RTMP_OS_TIMER				OS_RSTRUC
-
-#define RTMP_OS_FREE_TIMER(__pAd)
-#define RTMP_OS_FREE_LOCK(__pAd)
-#define RTMP_OS_FREE_TASKLET(__pAd)
-#define RTMP_OS_FREE_TASK(__pAd)
-#define RTMP_OS_FREE_SEM(__pAd)
-#define RTMP_OS_FREE_ATOMIC(__pAd)
-
-#endif /* OS_ABL_FUNC_SUPPORT */
-
+ 
 
 /*****************************************************************************
  *	OS file operation related data structure definitions

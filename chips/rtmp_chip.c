@@ -766,7 +766,8 @@ INT WaitForAsicReady(
 	UINT32 mac_val = 0, reg = MAC_CSR0;
 	int idx = 0;
 
-#ifdef RT3290	
+#ifdef RT3290
+df
 	if (IS_RT3290(pAd))
 		reg = ASIC_VERSION;
 #endif /* RT3290 */
@@ -848,27 +849,8 @@ VOID RtmpChipOpsHook(VOID *pCB)
 
 
 
-#ifdef RT3290
-	if (IS_RT3290(pAd))
-	{
-		RT3290_Init(pAd);
-		goto done;
-	}
-#endif /* RT290 */
 
-#ifdef RT8592
-	if (IS_RT8592(pAd)) {
-		RT85592_Init(pAd);
-		goto done;
-	}
-#endif /* RT8592 */
 
-#ifdef RT65xx
-	if (IS_RT65XX(pAd)) {
-		RT6590_Init(pAd);
-		goto done;
-	}
-#endif /* RT65xx */
 
 #ifdef MT7601
 	if (IS_MT7601(pAd)) {
@@ -888,8 +870,10 @@ VOID RtmpChipOpsHook(VOID *pCB)
 	pChipCap->TXWISize = 16;
 	pChipCap->RXWISize = 16;
 #if defined(RTMP_INTERNAL_TX_ALC) || defined(RTMP_TEMPERATURE_COMPENSATION)
+printk("dingyi");
 	pChipCap->TxPowerTuningTable_2G = TxPowerTuningTableOrg;
 #ifdef A_BAND_SUPPORT
+dkj
 	pChipCap->TxPowerTuningTable_5G = TxPowerTuningTableOrg;
 #endif /* A_BAND_SUPPORT */
 #endif /* defined(RTMP_INTERNAL_TX_ALC) || defined(RTMP_TEMPERATURE_COMPENSATION) */

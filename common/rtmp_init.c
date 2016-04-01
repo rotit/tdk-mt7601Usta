@@ -186,11 +186,6 @@ NDIS_STATUS	RTMPAllocAdapterBlock(
 	UCHAR			*pBeaconBuf = NULL;
 
 
-#ifdef OS_ABL_FUNC_SUPPORT
-	/* must put the function before any print message */
-	/* init OS utilities provided from UTIL module */
-	RtmpOsOpsInit(&RaOsOps);
-#endif /* OS_ABL_FUNC_SUPPORT */
 
 	DBGPRINT(RT_DEBUG_TRACE, ("--> RTMPAllocAdapterBlock\n"));
 
@@ -231,9 +226,6 @@ NDIS_STATUS	RTMPAllocAdapterBlock(
 			initList(&pAd->RscTimerCreateList);
 
 			pAd->OS_Cookie = handle;
-#ifdef WORKQUEUE_BH
-			((POS_COOKIE)(handle))->pAd_va = pAd;
-#endif /* WORKQUEUE_BH */
 		}
 		pAd->BeaconBuf = pBeaconBuf;
 		DBGPRINT(RT_DEBUG_OFF, ("\n\n=== pAd = %p, size = %d ===\n\n", pAd, (UINT32)sizeof(RTMP_ADAPTER)));
@@ -247,8 +239,6 @@ NDIS_STATUS	RTMPAllocAdapterBlock(
 		/* Init spin locks*/
 		NdisAllocateSpinLock(pAd, &pAd->MgmtRingLock);
 
-#if defined(RT3290) || defined(RT65xx) || defined(MT7601)
-#endif /* defined(RT3290) || defined(RT65xx) || defined(MT7601) */
 
 		for (index =0 ; index < NUM_OF_TX_RING; index++)
 		{
@@ -258,6 +248,7 @@ NDIS_STATUS	RTMPAllocAdapterBlock(
 		}
 
 #ifdef RESOURCE_PRE_ALLOC
+printk("jinmin --dinyi\n");
 		/* 
 			move this function from rt28xx_init() to here. now this function only allocate memory and
 			leave the initialization job to RTMPInitTxRxRingMemory() which called in rt28xx_init().
@@ -274,15 +265,6 @@ NDIS_STATUS	RTMPAllocAdapterBlock(
 
 
 		NdisAllocateSpinLock(pAd, &TimerSemLock);
-
-
-
-#ifdef RALINK_ATE
-#ifdef RTMP_MAC_USB
-		RTMP_OS_ATMOIC_INIT(&pAd->BulkOutRemained, &pAd->RscAtomicMemList);
-		RTMP_OS_ATMOIC_INIT(&pAd->BulkInRemained, &pAd->RscAtomicMemList);
-#endif /* RTMP_MAC_USB */
-#endif /* RALINK_ATE */
 
 
 		/* assign function pointers*/
@@ -3573,24 +3555,9 @@ INT RtmpRaDevCtrlInit(VOID *pAdSrc, RTMP_INF_TYPE infType)
 
 #endif
 
-#ifdef MULTIPLE_CARD_SUPPORT
-{
-	extern BOOLEAN RTMP_CardInfoRead(PRTMP_ADAPTER pAd);
-
-	/* find its profile path*/
-	pAd->MC_RowID = -1; /* use default profile path*/
-	RTMP_CardInfoRead(pAd);
-
-	if (pAd->MC_RowID == -1)
-#ifdef CONFIG_STA_SUPPORT
-		strcpy(pAd->MC_FileName, STA_PROFILE_PATH);
-#endif /* CONFIG_STA_SUPPORT */
-
-	DBGPRINT(RT_DEBUG_TRACE, ("MC> ROW = %d, PATH = %s\n", pAd->MC_RowID, pAd->MC_FileName));
-}
-#endif /* MULTIPLE_CARD_SUPPORT */
 
 #if defined(CONFIG_CSO_SUPPORT) || defined(CONFIG_RX_CSO_SUPPORT)
+printk("dingyi\n");
 	if (pAd->chipCap.asic_caps | fASIC_CAP_CSO)
 		RTMP_SET_MORE_FLAG(pAd, fASIC_CAP_CSO);
 #endif /* defined(CONFIG_CSO_SUPPORT) || defined(CONFIG_RX_CSO_SUPPORT) */
@@ -3603,18 +3570,6 @@ BOOLEAN RtmpRaDevCtrlExit(IN VOID *pAdSrc)
 	PRTMP_ADAPTER	pAd = (PRTMP_ADAPTER)pAdSrc;
 	INT index;
 	
-#ifdef MULTIPLE_CARD_SUPPORT
-extern UINT8  MC_CardUsed[MAX_NUM_OF_MULTIPLE_CARD];
-
-	if ((pAd->MC_RowID >= 0) && (pAd->MC_RowID <= MAX_NUM_OF_MULTIPLE_CARD))
-		MC_CardUsed[pAd->MC_RowID] = 0; /* not clear MAC address*/
-#endif /* MULTIPLE_CARD_SUPPORT */
-
-#ifdef CONFIG_STA_SUPPORT
-#ifdef CREDENTIAL_STORE
-		NdisFreeSpinLock(&pAd->StaCtIf.Lock);
-#endif /* CREDENTIAL_STORE */
-#endif /* CONFIG_STA_SUPPORT */
 
 
 

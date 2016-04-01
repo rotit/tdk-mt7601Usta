@@ -220,6 +220,7 @@ VOID	RTMPFreeTxRxRingMemory(
 
 	DBGPRINT(RT_DEBUG_ERROR, ("---> RTMPFreeTxRxRingMemory\n"));
 
+
 	/* Free all resources for the RECEIVE buffer queue.*/
 	for(i=0; i<(RX_RING_SIZE); i++)
 	{
@@ -283,7 +284,7 @@ VOID	RTMPFreeTxRxRingMemory(
 	
 	
 	/* Free Tx frame resource*/
-	for (acidx = 0; acidx < 4; acidx++)
+	for (acidx = 0; acidx < 5; acidx++)
 	{
 		PHT_TX_CONTEXT pHTTXContext = &(pAd->TxContext[acidx]);
 		if (pHTTXContext)

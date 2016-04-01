@@ -433,6 +433,7 @@ PNET_DEV RtmpPhyNetDevInit(
 
 #ifdef CONFIG_STA_SUPPORT
 #if WIRELESS_EXT >= 12
+printk("dingyi\n");
 	if (OpMode == OPMODE_STA)
 	{
 		pNetDevHook->iw_handler = (void *)&rt28xx_iw_handler_def;
@@ -440,14 +441,6 @@ PNET_DEV RtmpPhyNetDevInit(
 #endif /*WIRELESS_EXT >= 12 */
 #endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_APSTA_MIXED_SUPPORT
-#if WIRELESS_EXT >= 12
-	if (OpMode == OPMODE_AP)
-	{
-		pNetDevHook->iw_handler = &rt28xx_ap_iw_handler_def;
-	}
-#endif /*WIRELESS_EXT >= 12 */
-#endif /* CONFIG_APSTA_MIXED_SUPPORT */
 
 	/* put private data structure */
 	RTMP_OS_NETDEV_SET_PRIV(net_dev, pAd);

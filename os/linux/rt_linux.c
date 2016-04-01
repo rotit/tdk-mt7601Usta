@@ -1495,11 +1495,6 @@ static int RtmpOSNetDevRequestName(
 		memset(desiredName, 0, IFNAMSIZ);
 		strncpy(&desiredName[0], pPrefixStr, prefixLen);
 
-#ifdef MULTIPLE_CARD_SUPPORT
-		if (MC_RowID >= 0)
-			sprintf(suffixName, "%02d_%d", MC_RowID, ifNameIdx);
-		else
-#endif /* MULTIPLE_CARD_SUPPORT */
 			sprintf(suffixName, "%d", ifNameIdx);
 
 		slotNameLen = strlen(suffixName);
@@ -1584,7 +1579,6 @@ INT RtmpOSNetDevAlloc(
 }
 
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 INT RtmpOSNetDevOpsAlloc(PVOID *pNetDevOps)
 {
 	*pNetDevOps = (PVOID) vmalloc(sizeof (struct net_device_ops));
@@ -1595,7 +1589,6 @@ INT RtmpOSNetDevOpsAlloc(PVOID *pNetDevOps)
 		return NDIS_STATUS_FAILURE;
 	}
 }
-#endif
 
 
 PNET_DEV RtmpOSNetDevGetByName(PNET_DEV pNetDev, PSTRING pDevName)
@@ -1709,9 +1702,7 @@ int RtmpOSNetDevAttach(
 	int ret,
 	 rtnl_locked = FALSE;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	struct net_device_ops *pNetDevOps = (struct net_device_ops *)pNetDev->netdev_ops;
-#endif
 
 	DBGPRINT(RT_DEBUG_TRACE, ("RtmpOSNetDevAttach()--->\n"));
 
@@ -1721,33 +1712,19 @@ int RtmpOSNetDevAttach(
 
 /*		GET_PAD_FROM_NET_DEV(pAd, pNetDev); */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 		pNetDevOps->ndo_open = pDevOpHook->open;
 		pNetDevOps->ndo_stop = pDevOpHook->stop;
 		pNetDevOps->ndo_start_xmit =
 		    (HARD_START_XMIT_FUNC) (pDevOpHook->xmit);
 		pNetDevOps->ndo_do_ioctl = pDevOpHook->ioctl;
-#else
-		pNetDev->open = pDevOpHook->open;
-		pNetDev->stop = pDevOpHook->stop;
-		pNetDev->hard_start_xmit =
-		    (HARD_START_XMIT_FUNC) (pDevOpHook->xmit);
-		pNetDev->do_ioctl = pDevOpHook->ioctl;
-#endif
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,18)
 		pNetDev->ethtool_ops = &RALINK_Ethtool_Ops;
-#endif
 
 		/* if you don't implement get_stats, just leave the callback function as NULL, a dummy 
 		   function will make kernel panic.
 		 */
 		if (pDevOpHook->get_stats)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 			pNetDevOps->ndo_get_stats = pDevOpHook->get_stats;
-#else
-			pNetDev->get_stats = pDevOpHook->get_stats;
-#endif
 
 		/* OS specific flags, here we used to indicate if we are virtual interface */
 /*		pNetDev->priv_flags = pDevOpHook->priv_flags; */
@@ -1767,14 +1744,6 @@ int RtmpOSNetDevAttach(
 #endif /*WIRELESS_EXT >= 12 */
 #endif /* CONFIG_STA_SUPPORT */
 
-#ifdef CONFIG_APSTA_MIXED_SUPPORT
-#if WIRELESS_EXT >= 12
-		if (OpMode == OPMODE_AP) {
-/*			pNetDev->wireless_handlers = &rt28xx_ap_iw_handler_def; */
-			pNetDev->wireless_handlers = pDevOpHook->iw_handler;
-		}
-#endif /*WIRELESS_EXT >= 12 */
-#endif /* CONFIG_APSTA_MIXED_SUPPORT */
 
 		/* copy the net device mac address to the net_device structure. */
 		NdisMoveMemory(pNetDev->dev_addr, &pDevOpHook->devAddr[0],
@@ -1783,14 +1752,8 @@ int RtmpOSNetDevAttach(
 		rtnl_locked = pDevOpHook->needProtcted;
 
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,24)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	pNetDevOps->ndo_validate_addr = NULL;
 	/*pNetDev->netdev_ops = ops; */
-#else
-	pNetDev->validate_addr = NULL;
-#endif
-#endif
 
 	if (rtnl_locked)
 		ret = register_netdevice(pNetDev);
@@ -1815,9 +1778,7 @@ PNET_DEV RtmpOSNetDevCreate(
 	IN PSTRING pNamePrefix)
 {
 	struct net_device *pNetDev = NULL;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	struct net_device_ops *pNetDevOps = NULL;
-#endif
 	int status;
 
 	/* allocate a new network device */
@@ -1827,7 +1788,6 @@ PNET_DEV RtmpOSNetDevCreate(
 		DBGPRINT(RT_DEBUG_ERROR, ("Allocate network device fail (%s)...\n", pNamePrefix));
 		return NULL;
 	}
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 	status = RtmpOSNetDevOpsAlloc((PVOID) & pNetDevOps);
 	if (status != NDIS_STATUS_SUCCESS) {
 		/* error! no any available ra name can be used! */
@@ -1839,7 +1799,6 @@ PNET_DEV RtmpOSNetDevCreate(
 		DBGPRINT(RT_DEBUG_TRACE, ("Allocate net device ops success!\n"));
 		pNetDev->netdev_ops = pNetDevOps;
 	}
-#endif
 	/* find a available interface name, max 32 interfaces */
 	status = RtmpOSNetDevRequestName(MC_RowID, pIoctlIF, pNetDev, pNamePrefix, devNum);
 	if (status != NDIS_STATUS_SUCCESS) {
@@ -1879,27 +1838,6 @@ Note:
 */
 NDIS_STATUS AdapterBlockAllocateMemory(VOID *handle, VOID **ppAd, UINT32 SizeOfpAd)
 {
-#ifdef OS_ABL_FUNC_SUPPORT
-	/* get offset for sk_buff */
-	{
-		struct sk_buff *pPkt = NULL;
-
-		pPkt = kmalloc(sizeof (struct sk_buff), GFP_ATOMIC);
-		if (pPkt == NULL) {
-			*ppAd = NULL;
-			return NDIS_STATUS_FAILURE;
-		}
-
-		RTPktOffsetData = (ULONG) (&(pPkt->data)) - (ULONG) pPkt;
-		RTPktOffsetLen = (ULONG) (&(pPkt->len)) - (ULONG) pPkt;
-		RTPktOffsetCB = (ULONG) (pPkt->cb) - (ULONG) pPkt;
-		kfree(pPkt);
-
-		DBGPRINT(RT_DEBUG_TRACE, ("packet> data offset = %lu\n", RTPktOffsetData));
-		DBGPRINT(RT_DEBUG_TRACE, ("packet> len offset = %lu\n", RTPktOffsetLen));
-		DBGPRINT(RT_DEBUG_TRACE, ("packet> cb offset = %lu\n", RTPktOffsetCB));
-	}
-#endif /* OS_ABL_FUNC_SUPPORT */
 
 /*	*ppAd = (PVOID)vmalloc(sizeof(RTMP_ADAPTER)); //pci_alloc_consistent(pci_dev, sizeof(RTMP_ADAPTER), phy_addr); */
 	*ppAd = (PVOID) vmalloc(SizeOfpAd);	/*pci_alloc_consistent(pci_dev, sizeof(RTMP_ADAPTER), phy_addr); */

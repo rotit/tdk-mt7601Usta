@@ -54,6 +54,7 @@ VOID ChipOpsMCUHook(PRTMP_ADAPTER pAd, enum MCU_TYPE MCUType)
 	}
 
 #ifdef CONFIG_ANDES_SUPPORT
+printk("CONFIG ANDES SUPPORT \n");
 	if (MCUType == ANDES) 
 	{
 

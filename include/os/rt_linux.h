@@ -1212,68 +1212,30 @@ typedef struct usb_device_id USB_DEVICE_ID;
 #define BULKAGGRE_SIZE				40/* 100 */
 #endif /* INF_AMAZON_SE */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 
-#ifndef OS_ABL_SUPPORT
+
+
 /*#define RT28XX_PUT_DEVICE			usb_put_dev */
 #define RTUSB_ALLOC_URB(iso)		usb_alloc_urb(iso, GFP_ATOMIC)
 #define RTUSB_SUBMIT_URB(pUrb)		usb_submit_urb(pUrb, GFP_ATOMIC)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 5, 0)
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 35)
+
+
 #define RTUSB_URB_ALLOC_BUFFER(_dev, _size, _dma)	usb_alloc_coherent(_dev, _size, GFP_ATOMIC, _dma)
 #define RTUSB_URB_FREE_BUFFER(_dev, _size, _addr, _dma)	usb_free_coherent(_dev, _size, _addr, _dma)
-#else
-#define RTUSB_URB_ALLOC_BUFFER(_dev, _size, _dma)	usb_buffer_alloc(_dev, _size, GFP_ATOMIC, _dma)
-#define RTUSB_URB_FREE_BUFFER(_dev, _size, _addr, _dma)	usb_buffer_free(_dev, _size, _addr, _dma)
-#endif
-#else
-#define RTUSB_URB_ALLOC_BUFFER(_dev, _size, _dma)	kmalloc(_size, GFP_ATOMIC)
-#define RTUSB_URB_FREE_BUFFER(_dev, _size, _addr, _dma)	kfree(_addr) 
-#endif
 
-#else
 
-/*#define RT28XX_PUT_DEVICE			rausb_put_dev */
-#define RTUSB_ALLOC_URB(iso)		rausb_alloc_urb(iso)
-#define RTUSB_SUBMIT_URB(pUrb)		rausb_submit_urb(pUrb)
-#define RTUSB_URB_ALLOC_BUFFER		rausb_buffer_alloc
-#define RTUSB_URB_FREE_BUFFER		rausb_buffer_free
-#endif /* OS_ABL_SUPPORT */
 
-#else
 
-#define RT28XX_PUT_DEVICE(dev_p)
 
-#ifndef OS_ABL_SUPPORT
-#define RTUSB_ALLOC_URB(iso)                                               	usb_alloc_urb(iso)
-#define RTUSB_SUBMIT_URB(pUrb)                                             	usb_submit_urb(pUrb)
-#else
-#define RTUSB_ALLOC_URB(iso)                                               	rausb_alloc_urb(iso)
-#define RTUSB_SUBMIT_URB(pUrb)                                             	rausb_submit_urb(pUrb)
-#endif /* OS_ABL_SUPPORT */
 
-#define RTUSB_URB_ALLOC_BUFFER(pUsb_Dev, BufSize, pDma_addr)         		kmalloc(BufSize, GFP_ATOMIC)
-#define RTUSB_URB_FREE_BUFFER(pUsb_Dev, BufSize, pTransferBuf, Dma_addr)  	kfree(pTransferBuf)
-#endif
-
-#ifndef OS_ABL_SUPPORT
 #define RTUSB_FREE_URB(pUrb)	usb_free_urb(pUrb)
-#else
-#define RTUSB_FREE_URB(pUrb)	rausb_free_urb(pUrb)
-#endif /* OS_ABL_SUPPORT */
 
 /* unlink urb */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,7)
 
-#ifndef OS_ABL_SUPPORT
+
+
 #define RTUSB_UNLINK_URB(pUrb)		usb_kill_urb(pUrb)
-#else
-#define RTUSB_UNLINK_URB(pUrb)		rausb_kill_urb(pUrb)
-#endif /* OS_ABL_SUPPORT */
 
-#else
-#define RTUSB_UNLINK_URB(pUrb)		usb_unlink_urb(pUrb)
-#endif /* LINUX_VERSION_CODE */
 
 /* Prototypes of completion funuc. */
 #define RtmpUsbBulkOutDataPacketComplete		RTUSBBulkOutDataPacketComplete
@@ -1287,33 +1249,16 @@ typedef struct usb_device_id USB_DEVICE_ID;
 #define RtmpUsbBulkRxComplete					RTUSBBulkRxComplete
 #define RTUSBBulkCmdRspEventComplete(Status, pURB, pt_regs)	 	 RTUSBBulkCmdRspEventComplete(pURB)
 												
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 51)) || (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18))) 
+
 #define RTUSBBulkOutDataPacketComplete(Status, pURB, pt_regs)    RTUSBBulkOutDataPacketComplete(pURB)
 #define RTUSBBulkOutMLMEPacketComplete(Status, pURB, pt_regs)    RTUSBBulkOutMLMEPacketComplete(pURB)
 #define RTUSBBulkOutNullFrameComplete(Status, pURB, pt_regs)     RTUSBBulkOutNullFrameComplete(pURB)
-#ifdef CONFIG_MULTI_CHANNEL
-#define RTUSBBulkOutHCCANullFrameComplete(Status, pURB, pt_regs)     RTUSBBulkOutHCCANullFrameComplete(pURB)
-#endif /* CONFIG_MULTI_CHANNEL */
 #define RTUSBBulkOutRTSFrameComplete(Status, pURB, pt_regs)      RTUSBBulkOutRTSFrameComplete(pURB)
 #define RTUSBBulkOutPsPollComplete(Status, pURB, pt_regs)        RTUSBBulkOutPsPollComplete(pURB)
 #define RTUSBBulkRxComplete(Status, pURB, pt_regs)               RTUSBBulkRxComplete(pURB)
 #define RTUSBBulkCmdRspEventComplete(Status, pURB, pt_regs)               RTUSBBulkCmdRspEventComplete(pURB)
 #define USBUploadFWComplete(Status, pURB, pt_regs)               USBUploadFWComplete(pURB)
 #define USBKickOutCmdComplete(Status, pURB, pt_regs)               USBKickOutCmdComplete(pURB)
-#else
-#define RTUSBBulkOutDataPacketComplete(Status, pURB, pt_regs)    RTUSBBulkOutDataPacketComplete(pURB, pt_regs)
-#define RTUSBBulkOutMLMEPacketComplete(Status, pURB, pt_regs)    RTUSBBulkOutMLMEPacketComplete(pURB, pt_regs)
-#define RTUSBBulkOutNullFrameComplete(Status, pURB, pt_regs)     RTUSBBulkOutNullFrameComplete(pURB, pt_regs)
-#ifdef CONFIG_MULTI_CHANNEL
-#define RTUSBBulkOutHCCANullFrameComplete(Status, pURB, pt_regs)     RTUSBBulkOutHCCANullFrameComplete(pURB, pt_regs)
-#endif /* CONFIG_MULTI_CHANNEL */
-#define RTUSBBulkOutRTSFrameComplete(Status, pURB, pt_regs)      RTUSBBulkOutRTSFrameComplete(pURB, pt_regs)
-#define RTUSBBulkOutPsPollComplete(Status, pURB, pt_regs)        RTUSBBulkOutPsPollComplete(pURB, pt_regs)
-#define RTUSBBulkRxComplete(Status, pURB, pt_regs)               RTUSBBulkRxComplete(pURB, pt_regs)
-#define RTUSBBulkCmdRspEventComplete(Status, pURB, pt_regs)               RTUSBBulkCmdRspEventComplete(pURB, pt_regs)
-#define USBUploadFWComplete(Status, pURB, pt_regs)               USBUploadFWComplete(pURB, pt_regs)
-#define USBKickOutCmdComplete(Status, pURB, pt_regs)               USBKickOutCmdComplete(pURB, pt_regs)
-#endif /* */
 
 /*extern void dump_urb(struct urb *purb); */
 
@@ -1330,9 +1275,6 @@ typedef struct pt_regs pregs;
 USBHST_STATUS RTUSBBulkOutDataPacketComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
 USBHST_STATUS RTUSBBulkOutMLMEPacketComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
 USBHST_STATUS RTUSBBulkOutNullFrameComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
-#ifdef CONFIG_MULTI_CHANNEL
-USBHST_STATUS RTUSBBulkOutHCCANullFrameComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
-#endif /* CONFIG_MULTI_CHANNEL */
 USBHST_STATUS RTUSBBulkOutRTSFrameComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
 USBHST_STATUS RTUSBBulkOutPsPollComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
 USBHST_STATUS RTUSBBulkRxComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
@@ -1343,7 +1285,7 @@ USBHST_STATUS USBKickOutCmdComplete(URBCompleteStatus Status, purbb_t pURB, preg
 
 /* Fill Bulk URB Macro */
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+
 #define RTUSB_FILL_TX_BULK_URB(pUrb,	\
 			       pUsb_Dev,	\
 			       uEndpointAddress,		\
@@ -1358,24 +1300,9 @@ USBHST_STATUS USBKickOutCmdComplete(URBCompleteStatus Status, purbb_t pURB, preg
 						pUrb->transfer_dma	= TransferDma;	\
 			       		pUrb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;	\
 				}while(0)
-#else
-#define RTUSB_FILL_TX_BULK_URB(pUrb,	\
-			       pUsb_Dev,	\
-			       uEndpointAddress,		\
-			       pTransferBuf,			\
-			       BufSize,				\
-			       Complete,	\
-			       pContext,	\
-					TransferDma)	\
-  			       do{	\
-  			       		FILL_BULK_URB(pUrb, pUsb_Dev, usb_sndbulkpipe(pUsb_Dev, uEndpointAddress),	\
-							pTransferBuf, BufSize, Complete, pContext);	\
-			       }while(0)
-
-#endif
 
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
+
 #define RTUSB_FILL_HTTX_BULK_URB(pUrb,	\
 				pUsb_Dev,	\
 				uEndpointAddress,		\
@@ -1390,22 +1317,7 @@ USBHST_STATUS USBKickOutCmdComplete(URBCompleteStatus Status, purbb_t pURB, preg
 					pUrb->transfer_dma	= TransferDma; \
 					pUrb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;	\
 				}while(0)
-#else
-#define RTUSB_FILL_HTTX_BULK_URB(pUrb,	\
-				pUsb_Dev,				\
-				uEndpointAddress,		\
-				pTransferBuf,			\
-				BufSize,				\
-				Complete,				\
-			       pContext,	\
-					TransferDma)	\
-  				do{	\
-					FILL_BULK_URB(pUrb, pUsb_Dev, usb_sndbulkpipe(pUsb_Dev, uEndpointAddress),	\
-								pTransferBuf, BufSize, Complete, pContext);	\
-				}while(0)
-#endif	
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 #define RTUSB_FILL_RX_BULK_URB(pUrb,	\
 				pUsb_Dev,				\
 				uEndpointAddress,		\
@@ -1421,30 +1333,12 @@ USBHST_STATUS USBKickOutCmdComplete(URBCompleteStatus Status, purbb_t pURB, preg
 					pUrb->transfer_flags |= URB_NO_TRANSFER_DMA_MAP;	\
 				}while(0)
 /* pRxContext->data_dma + pAd->NextRxBulkInPosition; */
-#else
-#define RTUSB_FILL_RX_BULK_URB(pUrb,	\
-				pUsb_Dev,	\
-				uEndpointAddress,		\
-				pTransferBuf,			\
-				BufSize,				\
-				Complete,	\
-			       pContext,	\
-					TransferDma)	\
-  				do{	\
-					FILL_BULK_URB(pUrb, pUsb_Dev, usb_rcvbulkpipe(pUsb_Dev, uEndpointAddress),	\
-								pTransferBuf, BufSize, Complete, pContext);	\
-				}while(0)
-#endif
 	
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
 #define RTUSB_URB_DMA_MAPPING(pUrb)	\
 	{	\
 		pUrb->transfer_dma	= 0;	\
 		pUrb->transfer_flags &= (~URB_NO_TRANSFER_DMA_MAP);	\
 	}
-#else
-#define	RTUSB_URB_DMA_MAPPING(pUrb)
-#endif
 
 #define RTUSB_CONTROL_MSG(pUsb_Dev, uEndpointAddress, Request, RequestType, Value,Index, tmpBuf, TransferBufferLength, timeout, ret)	\
   		do{	\
@@ -1465,88 +1359,10 @@ USBHST_STATUS USBKickOutCmdComplete(URBCompleteStatus Status, purbb_t pURB, preg
 #define RTMP_OS_USB_CONTEXT_GET(__pURB)		__pURB->rtusb_urb_context
 #define RTMP_OS_USB_STATUS_GET(__pURB)		__pURB->rtusb_urb_status
 
-#ifndef OS_ABL_SUPPORT
 #define USB_CONTROL_MSG		usb_control_msg
 
-#else
-
-#define USB_CONTROL_MSG		rausb_control_msg
-
-/*extern int rausb_register(struct usb_driver * new_driver); */
-/*extern void rausb_deregister(struct usb_driver * driver); */
-
-extern struct urb *rausb_alloc_urb(int iso_packets);
-extern void rausb_free_urb(VOID *urb);
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-extern void rausb_put_dev(VOID *dev);
-extern struct usb_device *rausb_get_dev(VOID *dev);
-#endif /* LINUX_VERSION_CODE */
-
-extern int rausb_submit_urb(VOID *urb);
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,5,0)
-#ifndef gfp_t
-#define gfp_t		INT32
-#endif /* gfp_t */
-
-extern void *rausb_buffer_alloc(VOID *dev,
-								size_t size,
-								ra_dma_addr_t *dma);
-extern void rausb_buffer_free(VOID *dev,
-								size_t size,
-								void *addr,
-								ra_dma_addr_t dma);
-#endif /* LINUX_VERSION_CODE */
-
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,7)
-extern void rausb_kill_urb(VOID *urb);
-#endif /* LINUX_VERSION_CODE */
-
-extern int rausb_control_msg(VOID *dev,
-							unsigned int pipe,
-							__u8 request,
-							__u8 requesttype,
-							__u16 value,
-							__u16 index,
-							void *data,
-							__u16 size,
-							int timeout);
-
-#endif /* OS_ABL_SUPPORT */
 
 /*#endif // RTMP_USB_SUPPORT */
-
-#ifdef RALINK_ATE
-/******************************************************************************
-
-  	ATE related definitions
-
-******************************************************************************/
-#define ate_print printk
-#define ATEDBGPRINT DBGPRINT
-
-#ifdef RTMP_MAC_USB
-#ifdef CONFIG_STA_SUPPORT
-#undef EEPROM_BIN_FILE_NAME /* Avoid APSTA mode re-define issue */
-#define EEPROM_BIN_FILE_NAME  "/etc/Wireless/RT2870STA/e2p.bin"
-#endif /* CONFIG_STA_SUPPORT */
-#endif /* RTMP_MAC_USB */
-
-#ifdef RTMP_USB_SUPPORT
-
-#if ((LINUX_VERSION_CODE < KERNEL_VERSION(2, 5, 51)) || (LINUX_VERSION_CODE > KERNEL_VERSION(2, 6, 18)))
-/* Prototypes of completion funuc. */
-#define ATE_RTUSBBulkOutDataPacketComplete(Status, pURB, pt_regs)    ATE_RTUSBBulkOutDataPacketComplete(pURB)
-#else
-#define ATE_RTUSBBulkOutDataPacketComplete(Status, pURB, pt_regs)    ATE_RTUSBBulkOutDataPacketComplete(pURB, pt_regs)	
-#endif /* LINUX_VERSION_CODE */
-
-USBHST_STATUS ATE_RTUSBBulkOutDataPacketComplete(URBCompleteStatus Status, purbb_t pURB, pregs *pt_regs);
-		
-#endif /* RTMP_USB_SUPPORT */
-
-#endif /* RALINK_ATE */
 
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 INT RtmpOSNetDevOpsAlloc(

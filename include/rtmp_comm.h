@@ -196,9 +196,9 @@ Ndis802_11InfrastructureMax	/* Not a real value, defined as upper bound */
 
 /* ======================== Memory ========================================== */ 
 #ifdef VENDOR_FEATURE2_SUPPORT
-
+df
 extern ULONG OS_NumOfPktAlloc, OS_NumOfPktFree;
-
+df
 #define MEM_DBG_PKT_ALLOC_INC(__pPacket)	OS_NumOfPktAlloc ++;
 #define MEM_DBG_PKT_FREE_INC(__pPacket)		OS_NumOfPktFree ++;
 #else

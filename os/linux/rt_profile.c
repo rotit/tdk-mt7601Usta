@@ -475,11 +475,9 @@ VOID	RTMPFreeAdapter(
 
 
 
-#ifdef UAPSD_SUPPORT
-	NdisFreeSpinLock(&pAd->UAPSDEOSPLock); /* OS_ABL_SUPPORT */
-#endif /* UAPSD_SUPPORT */
-
+ 
 #ifdef DOT11_N_SUPPORT
+ printk("dingyi\n");
 	NdisFreeSpinLock(&pAd->mpdu_blk_pool.lock);
 #endif /* DOT11_N_SUPPORT */
 
